@@ -2,8 +2,12 @@ package com.emppayroll.controller;
 
 import java.util.List;
 
-import org.json.JSONObject;
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,66 +20,86 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.emppayroll.dto.EmployeeDto;
 import com.emppayroll.entity.EmployeeEntity;
+import com.emppayroll.response.ResponseHandler;
 import com.emppayroll.service.EmployeeService;
 
 @RestController
 @RequestMapping("/employee")
 public class EmployeeController {
+
+	@Value("${emp_add}")
+	private String empAdd;
+
+	@Value("${emp_update}")
+	private String empUpdate;
+
+	@Value("${emp_delete}")
+	private String empDelete;
+
+	@Value("${emp_get}")
+	private String empget;
+
+	@Value("${userNotFound}")
+	private String userNotFound;
+
 	@Autowired
 	EmployeeService empService;
 
-	@PostMapping("/addEmployee")
-	public String addEmployee(@RequestBody EmployeeEntity entity) {
-		JSONObject response = new JSONObject();
-		EmployeeEntity empEntity = empService.addEmployee(entity);
-		response.put("status", "sucess");
-		response.put("message", "employee added");
-		response.put("data", empEntity);
-		return response.toString();
-
+	@PostMapping("/register")
+	public ResponseEntity<Object> addEmployee(@Valid @RequestBody EmployeeDto entity) {
+		try {
+			empService.addEmployee(entity);
+			return ResponseHandler.generateResponse(empAdd, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.MULTI_STATUS);
+		}
 	}
 
-	@GetMapping("/getEmployee/{id}")
-	public String getEmployeeById(@PathVariable Long id) {
-		JSONObject response = new JSONObject();
-		EmployeeEntity empEntity = empService.getEmployeeById(id);
-		response.put("status", "sucess");
-		response.put("message", "Employee Details");
-		response.put("data", empEntity);
-		return response.toString();
-
+	@GetMapping("/find/{id}")
+	public ResponseEntity<Object> getEmployeeById(@PathVariable Long id) {
+		try {
+			EmployeeEntity empEntity = empService.getEmployeeById(id);
+			return ResponseHandler.generateObjectResponse(empget, HttpStatus.OK, empEntity);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseHandler.generateResponse(userNotFound, HttpStatus.MULTI_STATUS);
+		}
 	}
 
-	@PutMapping("/updateEmployee/{id}")
-	public String updateEmployee(@PathVariable Long id, @RequestBody EmployeeDto emp) {
-		JSONObject response = new JSONObject();
-		EmployeeEntity empEntity = empService.updateEmployee(id, emp);
-		response.put("status", "sucess");
-		response.put("message", "Employee Details Updated");
-		response.put("data", empEntity);
-		return response.toString();
+	@PutMapping("/update/{id}")
+	public ResponseEntity<Object> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDto emp) {
+		try {
 
+			empService.updateEmployee(id, emp);
+			return ResponseHandler.generateResponse(empUpdate, HttpStatus.OK);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseHandler.generateResponse(userNotFound, HttpStatus.MULTI_STATUS);
+		}
 	}
-	
-	@GetMapping("/getAllEmployees")
-	public String getAllEmployee() {
-		JSONObject response = new JSONObject();
-		List<EmployeeEntity> empEntity = empService.getAllEmployees();
-		response.put("status", "sucess");
-		response.put("message", "All Employee Details ");
-		response.put("data", empEntity);
-		return response.toString();
 
+	@GetMapping("/allEmployees")
+	public ResponseEntity<Object> getAllEmployee() {
+		try {
+			List<EmployeeEntity> empEntity = empService.getAllEmployees();
+			return ResponseHandler.generateObjectResponse(empget, HttpStatus.OK, empEntity);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.MULTI_STATUS);
+		}
 	}
-	
-	@DeleteMapping("/deleteEmployeeById")
-	public String deleteEmployeeById(@RequestParam ("id") Long id) {
-		JSONObject response = new JSONObject();
-		empService.deleteEmployee(id);
-		response.put("status", "sucess");
-		response.put("message", "Employee Deleted ");
-		return response.toString();
 
+	@DeleteMapping("/remove")
+	public ResponseEntity<Object> deleteEmployeeById(@RequestParam("id") Long id) {
+		try {
+			empService.deleteEmployee(id);
+			return ResponseHandler.generateResponse(empDelete, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseHandler.generateResponse(userNotFound, HttpStatus.MULTI_STATUS);
+		}
 	}
 
 }

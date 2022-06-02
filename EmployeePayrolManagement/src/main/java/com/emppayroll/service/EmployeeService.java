@@ -7,9 +7,9 @@ import com.emppayroll.entity.EmployeeEntity;
 
 public interface EmployeeService {
 
-	public EmployeeEntity addEmployee(EmployeeEntity emp);
+	public EmployeeEntity addEmployee(EmployeeDto emp);
 
-	public EmployeeEntity updateEmployee(Long empId,EmployeeDto emp);
+	public EmployeeEntity updateEmployee(Long empId, EmployeeDto emp);
 
 	public EmployeeEntity getEmployeeById(Long empId);
 

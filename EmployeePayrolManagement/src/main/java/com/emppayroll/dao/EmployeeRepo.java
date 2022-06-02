@@ -7,7 +7,8 @@ import com.emppayroll.entity.EmployeeEntity;
 
 @Repository
 public interface EmployeeRepo extends JpaRepository<EmployeeEntity, Long> {
-	
+
+	EmployeeEntity findByname(String name);
 	
 
 }
